@@ -946,9 +946,21 @@
                     if (this.endDate != null && calendar[row][col].format('YYYY-MM-DD') == this.endDate.format('YYYY-MM-DD'))
                         classes.push('active', 'end-date');
 
+                                        //highlight the currently selected start date
+                    if (calendar[row][col].format('YYYY-MM-DD') == this.startDateCompare.format('YYYY-MM-DD'))
+                        classes.push('active-compare', 'start-date');
+
+                    //highlight the currently selected end date
+                    if (this.endDateCompare != null && calendar[row][col].format('YYYY-MM-DD') == this.endDateCompare.format('YYYY-MM-DD'))
+                        classes.push('active-compare', 'end-date');
+
                     //highlight dates in-between the selected dates
                     if (this.endDate != null && calendar[row][col] > this.startDate && calendar[row][col] < this.endDate)
                         classes.push('in-range');
+
+                    //highlight dates in-between the selected dates
+                    if (this.endDateCompare != null && calendar[row][col] > this.startDateCompare && calendar[row][col] < this.endDateCompare)
+                        classes.push('in-range-compare');
 
                     //apply custom classes for this date
                     var isCustom = this.isCustomDate(calendar[row][col]);
