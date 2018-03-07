@@ -39,6 +39,9 @@ $(document).ready(function() {
     if ($('#singleDatePicker').is(':checked'))
       options.singleDatePicker = true;
 
+    if ($('#comparisonPicker').is(':checked'))
+      options.comparisonPicker = true;
+
     if ($('#showDropdowns').is(':checked'))
       options.showDropdowns = true;
 

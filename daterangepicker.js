@@ -35,11 +35,15 @@
         this.element = $(element);
         this.startDate = moment().startOf('day');
         this.endDate = moment().endOf('day');
+        this.startDateCompare = moment().startOf('day');
+        this.endDateCompare = moment().startOf('day');
         this.minDate = false;
         this.maxDate = false;
         this.dateLimit = false;
         this.autoApply = false;
         this.singleDatePicker = false;
+        this.comparisonPicker = false;
+        this.currentRangeSelection = 0;
         this.showDropdowns = false;
         this.showWeekNumbers = false;
         this.showISOWeekNumbers = false;
@@ -242,6 +246,9 @@
             if (this.singleDatePicker)
                 this.endDate = this.startDate.clone();
         }
+
+        if (typeof options.comparisonPicker === 'boolean')
+            this.comparisonPicker = options.comparisonPicker;
 
         if (typeof options.timePicker === 'boolean')
             this.timePicker = options.timePicker;
@@ -518,6 +525,67 @@
                 this.endDate = this.startDate.clone().add(this.dateLimit);
 
             this.previousRightTime = this.endDate.clone();
+
+            if (!this.isShowing)
+                this.updateElement();
+
+            this.updateMonthsInView();
+        },
+
+        setComparisonStartDate: function(startDate) {
+            if (typeof startDate === 'string')
+                this.startDateCompare = moment(startDate, this.locale.format);
+
+            if (typeof startDate === 'object')
+                this.startDateCompare = moment(startDate);
+
+            if (!this.timePicker)
+                this.startDateCompare = this.startDateCompare.startOf('day');
+
+            if (this.timePicker && this.timePickerIncrement)
+                this.startDateCompare.minute(Math.round(this.startDateCompare.minute() / this.timePickerIncrement) * this.timePickerIncrement);
+
+            if (this.minDate && this.startDateCompare.isBefore(this.minDate)) {
+                this.startDateCompare = this.minDate.clone();
+                if (this.timePicker && this.timePickerIncrement)
+                    this.startDateCompare.minute(Math.round(this.startDateCompare.minute() / this.timePickerIncrement) * this.timePickerIncrement);
+            }
+
+            if (this.maxDate && this.startDateCompare.isAfter(this.maxDate)) {
+                this.startDateCompare = this.maxDate.clone();
+                if (this.timePicker && this.timePickerIncrement)
+                    this.startDateCompare.minute(Math.floor(this.startDateCompare.minute() / this.timePickerIncrement) * this.timePickerIncrement);
+            }
+
+            if (!this.isShowing)
+                this.updateElement();
+
+            this.updateMonthsInView();
+        },
+
+        setComparisonEndDate: function(endDate) {
+            if (typeof endDate === 'string')
+                this.endDateCompare = moment(endDate, this.locale.format);
+
+            if (typeof endDate === 'object')
+                this.endDateCompare = moment(endDate);
+
+            if (!this.timePicker)
+                this.endDateCompare = this.endDateCompare.add(1,'d').startOf('day').subtract(1,'second');
+
+            if (this.timePicker && this.timePickerIncrement)
+                this.endDateCompare.minute(Math.round(this.endDateCompare.minute() / this.timePickerIncrement) * this.timePickerIncrement);
+
+            if (this.endDateCompare.isBefore(this.startDate))
+                this.endDateCompare = this.startDateCompare.clone();
+
+            if (this.maxDate && this.endDateCompare.isAfter(this.maxDate))
+                this.endDateCompare = this.maxDate.clone();
+
+            if (this.dateLimit && this.startDateCompare.clone().add(this.dateLimit).isBefore(this.endDateCompare))
+                this.endDateCompare = this.startDateCompare.clone().add(this.dateLimit);
+
+            this.previousRightTime = this.endDateCompare.clone();
 
             if (!this.isShowing)
                 this.updateElement();
@@ -1314,47 +1382,110 @@
             // * if autoapply is enabled, and an end date was chosen, apply the selection
             // * if single date picker mode, and time picker isn't enabled, apply the selection immediately
             // * if one of the inputs above the calendars was focused, cancel that manual input
+            // * if using a multiple date range picker it alernates which range its selecting
             //
 
-            if (this.endDate || date.isBefore(this.startDate, 'day')) { //picking start
-                if (this.timePicker) {
-                    var hour = parseInt(this.container.find('.left .hourselect').val(), 10);
-                    if (!this.timePicker24Hour) {
-                        var ampm = this.container.find('.left .ampmselect').val();
-                        if (ampm === 'PM' && hour < 12)
-                            hour += 12;
-                        if (ampm === 'AM' && hour === 12)
-                            hour = 0;
+            
+            if (this.currentRangeSelection >= 1) {
+
+                if (this.endDateCompare || date.isBefore(this.startDateCompare, 'day')) { //picking start
+                    if (this.timePicker) {
+                        var hour = parseInt(this.container.find('.left .hourselect').val(), 10);
+                        if (!this.timePicker24Hour) {
+                            var ampm = this.container.find('.left .ampmselect').val();
+                            if (ampm === 'PM' && hour < 12)
+                                hour += 12;
+                            if (ampm === 'AM' && hour === 12)
+                                hour = 0;
+                        }
+                        var minute = parseInt(this.container.find('.left .minuteselect').val(), 10);
+                        var second = this.timePickerSeconds ? parseInt(this.container.find('.left .secondselect').val(), 10) : 0;
+                        date = date.clone().hour(hour).minute(minute).second(second);
                     }
-                    var minute = parseInt(this.container.find('.left .minuteselect').val(), 10);
-                    var second = this.timePickerSeconds ? parseInt(this.container.find('.left .secondselect').val(), 10) : 0;
-                    date = date.clone().hour(hour).minute(minute).second(second);
-                }
-                this.endDate = null;
-                this.setStartDate(date.clone());
-            } else if (!this.endDate && date.isBefore(this.startDate)) {
-                //special case: clicking the same date for start/end,
-                //but the time of the end date is before the start date
-                this.setEndDate(this.startDate.clone());
-            } else { // picking end
-                if (this.timePicker) {
-                    var hour = parseInt(this.container.find('.right .hourselect').val(), 10);
-                    if (!this.timePicker24Hour) {
-                        var ampm = this.container.find('.right .ampmselect').val();
-                        if (ampm === 'PM' && hour < 12)
-                            hour += 12;
-                        if (ampm === 'AM' && hour === 12)
-                            hour = 0;
+                    this.endDateCompare = null;
+
+                    this.setComparisonStartDate(date.clone());
+                    
+                } else if (!this.endDateCompare && date.isBefore(this.startDateCompare)) {
+                    //special case: clicking the same date for start/end,
+                    //but the time of the end date is before the start date
+                    this.setComparisonEndDate(this.startDateCompare.clone());
+                } else { // picking end
+                    if (this.timePicker) {
+                        var hour = parseInt(this.container.find('.right .hourselect').val(), 10);
+                        if (!this.timePicker24Hour) {
+                            var ampm = this.container.find('.right .ampmselect').val();
+                            if (ampm === 'PM' && hour < 12)
+                                hour += 12;
+                            if (ampm === 'AM' && hour === 12)
+                                hour = 0;
+                        }
+                        var minute = parseInt(this.container.find('.right .minuteselect').val(), 10);
+                        var second = this.timePickerSeconds ? parseInt(this.container.find('.right .secondselect').val(), 10) : 0;
+                        date = date.clone().hour(hour).minute(minute).second(second);
                     }
-                    var minute = parseInt(this.container.find('.right .minuteselect').val(), 10);
-                    var second = this.timePickerSeconds ? parseInt(this.container.find('.right .secondselect').val(), 10) : 0;
-                    date = date.clone().hour(hour).minute(minute).second(second);
+                    this.setComparisonEndDate(date.clone());             
+                    
+                    if (this.comparisonPicker) {
+                        this.nextPicker();
+                    }
+    
+                    if (this.autoApply) {
+                      this.calculateChosenLabel();
+                      this.clickApply();
+                    }
                 }
-                this.setEndDate(date.clone());
-                if (this.autoApply) {
-                  this.calculateChosenLabel();
-                  this.clickApply();
+    
+            } else {
+                
+                if (this.endDate || date.isBefore(this.startDate, 'day')) { //picking start
+                    if (this.timePicker) {
+                        var hour = parseInt(this.container.find('.left .hourselect').val(), 10);
+                        if (!this.timePicker24Hour) {
+                            var ampm = this.container.find('.left .ampmselect').val();
+                            if (ampm === 'PM' && hour < 12)
+                                hour += 12;
+                            if (ampm === 'AM' && hour === 12)
+                                hour = 0;
+                        }
+                        var minute = parseInt(this.container.find('.left .minuteselect').val(), 10);
+                        var second = this.timePickerSeconds ? parseInt(this.container.find('.left .secondselect').val(), 10) : 0;
+                        date = date.clone().hour(hour).minute(minute).second(second);
+                    }
+                    this.endDate = null;
+
+                    this.setStartDate(date.clone());
+                    
+                } else if (!this.endDate && date.isBefore(this.startDate)) {
+                    //special case: clicking the same date for start/end,
+                    //but the time of the end date is before the start date
+                    this.setEndDate(this.startDate.clone());
+                } else { // picking end
+                    if (this.timePicker) {
+                        var hour = parseInt(this.container.find('.right .hourselect').val(), 10);
+                        if (!this.timePicker24Hour) {
+                            var ampm = this.container.find('.right .ampmselect').val();
+                            if (ampm === 'PM' && hour < 12)
+                                hour += 12;
+                            if (ampm === 'AM' && hour === 12)
+                                hour = 0;
+                        }
+                        var minute = parseInt(this.container.find('.right .minuteselect').val(), 10);
+                        var second = this.timePickerSeconds ? parseInt(this.container.find('.right .secondselect').val(), 10) : 0;
+                        date = date.clone().hour(hour).minute(minute).second(second);
+                    }
+                    this.setEndDate(date.clone());             
+                    
+                    if (this.comparisonPicker) {
+                        this.nextPicker();
+                    }
+    
+                    if (this.autoApply) {
+                      this.calculateChosenLabel();
+                      this.clickApply();
+                    }
                 }
+    
             }
 
             if (this.singleDatePicker) {
@@ -1367,6 +1498,16 @@
 
             //This is to cancel the blur event handler if the mouse was in one of the inputs
             e.stopPropagation();
+
+        },
+
+        nextPicker: function() {
+
+            if (this.currentRangeSelection >= 1) {
+                this.currentRangeSelection = 0
+            } else {
+                this.currentRangeSelection = this.currentRangeSelection + 1
+            }
 
         },
 
