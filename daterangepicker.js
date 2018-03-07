@@ -111,7 +111,7 @@
                     '</div>' +
                     '<div class="daterangepicker_input_compare">' +
                       '<input class="input-mini form-control" type="text" name="daterangepicker_start_compare" value="" />' +
-                      '<i class="fa fa-calendar glyphicon glyphicon-calendar"></i>' +
+                      '<i class="calendar-vs">vs</i>' +
                       '<div class="calendar-time">' +
                         '<div></div>' +
                         '<i class="fa fa-clock-o glyphicon glyphicon-time"></i>' +
@@ -130,7 +130,7 @@
                     '</div>' +
                     '<div class="daterangepicker_input_compare">' +
                       '<input class="input-mini form-control" type="text" name="daterangepicker_end_compare" value="" />' +
-                      '<i class="fa fa-calendar glyphicon glyphicon-calendar"></i>' +
+                      '<i class="calendar-vs">vs</i>' +
                       '<div class="calendar-time">' +
                         '<div></div>' +
                         '<i class="fa fa-clock-o glyphicon glyphicon-time"></i>' +

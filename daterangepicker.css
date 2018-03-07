@@ -182,6 +182,8 @@
     .daterangepicker .calendar-time select.disabled {
       color: #ccc;
       cursor: not-allowed; }
+  .daterangepicker .calendar-vs {
+    margin-top: -4px; }
 
 .ranges {
   font-size: 11px;
