@@ -31,6 +31,16 @@ $(document).ready(function() {
     startDate: moment()
   });
 
+  $('#startDateCompare').daterangepicker({
+    singleDatePicker: true,
+    startDate: moment().subtract(14, 'days')
+  });
+
+  $('#endDateCompare').daterangepicker({
+    singleDatePicker: true,
+    startDate: moment().subtract(7, 'days')
+  });
+
   updateConfig();
 
   function updateConfig() {
