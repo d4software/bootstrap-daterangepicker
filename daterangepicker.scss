@@ -414,6 +414,10 @@ $daterangepicker-ranges-active-border-radius: $daterangepicker-border-radius !de
     }
   }
 
+  .daterangepicker_input_compare  {
+    @extend .daterangepicker_input;
+  }
+
   //
   // Time Picker
   //

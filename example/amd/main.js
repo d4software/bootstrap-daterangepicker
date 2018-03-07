@@ -113,6 +113,12 @@ $(document).ready(function() {
     if ($('#endDate').val().length)
       options.endDate = $('#endDate').val();
 
+    if ($('#startDateCompare').val().length)
+      options.startDateCompare = $('#startDateCompare').val();
+
+    if ($('#endDateCompare').val().length)
+      options.endDateCompare = $('#endDateCompare').val();
+
     if ($('#minDate').val().length)
       options.minDate = $('#minDate').val();
 
