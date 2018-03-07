@@ -621,7 +621,7 @@
             if (this.timePicker && this.timePickerIncrement)
                 this.endDateCompare.minute(Math.round(this.endDateCompare.minute() / this.timePickerIncrement) * this.timePickerIncrement);
 
-            if (this.endDateCompare.isBefore(this.startDate))
+            if (this.endDateCompare.isBefore(this.startDateCompare))
                 this.endDateCompare = this.startDateCompare.clone();
 
             if (this.maxDate && this.endDateCompare.isAfter(this.maxDate))
@@ -1482,15 +1482,18 @@
                         var second = this.timePickerSeconds ? parseInt(this.container.find('.left .secondselect').val(), 10) : 0;
                         date = date.clone().hour(hour).minute(minute).second(second);
                     }
-                    this.endDateCompare = null;
 
-                    this.setComparisonStartDate(date.clone());
+                    this.endDateCompare = null;
+                    //Don't allow comparison dates to overlap or be after the start date of the primary range
+                    if (date.isBefore(this.startDate, 'day')) {
+                        this.setComparisonStartDate(date.clone());
+                    }
                     
                 } else if (!this.endDateCompare && date.isBefore(this.startDateCompare)) {
                     //special case: clicking the same date for start/end,
                     //but the time of the end date is before the start date
                     this.setComparisonEndDate(this.startDateCompare.clone());
-                } else { // picking end
+                } else if (date.isBefore(this.startDate, 'day')){ // picking end
                     if (this.timePicker) {
                         var hour = parseInt(this.container.find('.right .hourselect').val(), 10);
                         if (!this.timePicker24Hour) {
