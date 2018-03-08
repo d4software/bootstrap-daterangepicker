@@ -1277,6 +1277,8 @@
 
             this.oldStartDate = this.startDate.clone();
             this.oldEndDate = this.endDate.clone();
+            this.oldStartDateCompare = this.startDateCompare.clone();
+            this.oldEndDateCompare = this.endDateCompare.clone();
             this.previousRightTime = this.endDate.clone();
 
             this.updateView();
@@ -1295,9 +1297,14 @@
                 this.endDate = this.oldEndDate.clone();
             }
 
+            if (!this.endDateCompare) {
+                this.startDateCompare = this.oldStartDateCompare.clone();
+                this.endDateCompare = this.oldEndDateCompare.clone();
+            }
+
             //if a new date range was selected, invoke the user callback function
-            if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate))
-                this.callback(this.startDate, this.endDate, this.chosenLabel);
+            if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate) || !this.endDateCompare.isSame(this.oldEndDateCompare) || !this.startDateCompare.isSame(this.oldStartDateCompare))
+                this.callback(this.startDate, this.endDate, this.startDateCompare, this.endDateCompare, this.chosenLabel);
 
             //if picker is attached to a text input, update it
             this.updateElement();
@@ -1703,6 +1710,8 @@
         clickCancel: function(e) {
             this.startDate = this.oldStartDate;
             this.endDate = this.oldEndDate;
+            this.startDateCompare = this.oldStartDateCompare;
+            this.endDateCompare = this.oldEndDateCompare;
             this.hide();
             this.element.trigger('cancel.daterangepicker', this);
         },
