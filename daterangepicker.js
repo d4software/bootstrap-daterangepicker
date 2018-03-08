@@ -35,19 +35,21 @@
         this.element = $(element);
         this.startDate = moment().startOf('day');
         this.endDate = moment().endOf('day');
-        this.startDateCompare = moment().startOf('day');
-        this.endDateCompare = moment().startOf('day');
+        this.startDateCompare = this.claculatePreviousRange('start');
+        this.endDateCompare = this.claculatePreviousRange('end');
         this.minDate = false;
         this.maxDate = false;
         this.dateLimit = false;
         this.autoApply = false;
         this.singleDatePicker = false;
         this.comparisonPicker = false;
+        this.autoSelectPreviousRange = true;
         this.currentRangeSelection = 0;
         this.showDropdowns = false;
         this.showWeekNumbers = false;
         this.showISOWeekNumbers = false;
         this.showCustomRangeLabel = true;
+        this.showPreviousRangeLabel = false;
         this.timePicker = false;
         this.timePicker24Hour = false;
         this.timePickerIncrement = 1;
@@ -77,6 +79,7 @@
             cancelLabel: 'Cancel',
             weekLabel: 'W',
             customRangeLabel: 'Custom Range',
+            previousRangeLabel: 'Previous Range',
             daysOfWeek: moment.weekdaysMin(),
             monthNames: moment.monthsShort(),
             firstDay: moment.localeData().firstDayOfWeek()
@@ -189,6 +192,14 @@
                 var rangeHtml = elem.value;
                 this.locale.customRangeLabel = rangeHtml;
             }
+
+            if (typeof options.locale.previousRangeLabel === 'string'){
+                //Support unicode chars in the custom range name.
+                var elem = document.createElement('textarea');
+                elem.innerHTML = options.locale.previousRangeLabel;
+                var rangeHtml = elem.value;
+                this.locale.previousRangeLabel = rangeHtml;
+            }
         }
         this.container.addClass(this.locale.direction);
 
@@ -276,6 +287,10 @@
 
         if (typeof options.showCustomRangeLabel === 'boolean')
             this.showCustomRangeLabel = options.showCustomRangeLabel;
+
+        
+        if (typeof options.showPreviousRangeLabel === 'boolean')
+            this.showPreviousRangeLabel = options.showPreviousRangeLabel;
 
         if (typeof options.singleDatePicker === 'boolean') {
             this.singleDatePicker = options.singleDatePicker;
@@ -391,9 +406,13 @@
             for (range in this.ranges) {
                 list += '<li data-range-key="' + range + '">' + range + '</li>';
             }
+            if (this.showPreviousRangeLabel) {
+                list += '<li id="previous-range-label" data-range-key="' + this.locale.previousRangeLabel + '">' + this.locale.previousRangeLabel + '</li>';
+            }
             if (this.showCustomRangeLabel) {
                 list += '<li data-range-key="' + this.locale.customRangeLabel + '">' + this.locale.customRangeLabel + '</li>';
             }
+
             list += '</ul>';
             this.container.find('.ranges').prepend(list);
         }
@@ -819,7 +838,7 @@
             var minDate = side == 'left' ? this.minDate : this.startDate;
             var maxDate = this.maxDate;
             var selected = side == 'left' ? this.startDate : this.endDate;
-            var arrow = this.locale.direction == 'ltr' ? {left: 'chevron-left', right: 'chevron-right'} : {left: 'chevron-right', right: 'chevron-left'};
+            var arrow = this.locale.direction == 'ltr' ? {left: 'caret-left', right: 'caret-right'} : {left: 'caret-right', right: 'caret-left'};
 
             var html = '<table class="table-condensed">';
             html += '<thead>';
@@ -953,14 +972,14 @@
                     if (this.comparisonPicker) {
                         //highlight dates in-between the selected dates
                         if (this.endDateCompare != null && calendar[row][col] > this.startDateCompare && calendar[row][col] < this.endDateCompare)
-                        classes.push('in-range-compare');
+                            classes.push('in-range-compare');
                         //highlight the currently selected start date
                         if (calendar[row][col].format('YYYY-MM-DD') == this.startDateCompare.format('YYYY-MM-DD'))
-                        classes.push('active-compare', 'start-date');
+                            classes.push('active-compare', 'start-date');
 
                         //highlight the currently selected end date
                         if (this.endDateCompare != null && calendar[row][col].format('YYYY-MM-DD') == this.endDateCompare.format('YYYY-MM-DD'))
-                        classes.push('active-compare', 'end-date');
+                            classes.push('active-compare', 'end-date');
                     }
 
                     //apply custom classes for this date
@@ -1334,6 +1353,9 @@
 
             if (label == this.locale.customRangeLabel) {
                 this.updateView();
+            } else if (label == this.locale.previousRangeLabel) {
+                this.container.find('input[name=daterangepicker_start_compare]').val(this.claculatePreviousRange('start').format(this.locale.format));
+                this.container.find('input[name=daterangepicker_end_compare]').val(this.claculatePreviousRange('end').format(this.locale.format));
             } else {
                 var dates = this.ranges[label];
                 this.container.find('input[name=daterangepicker_start]').val(dates[0].format(this.locale.format));
@@ -1342,11 +1364,41 @@
 
         },
 
+        claculatePreviousRange: function(section) {
+            var diff = this.endDate.diff(this.startDate, 'day') + 1
+
+            if (section === 'start') {
+                return moment(this.startDate).subtract(diff, 'day')
+            } else if (section === 'end') {
+                return moment(this.endDate).subtract(diff, 'day')
+            } 
+        },
+
         clickRange: function(e) {
             var label = e.target.getAttribute('data-range-key');
             this.chosenLabel = label;
             if (label == this.locale.customRangeLabel) {
+
+                if (this.comparisonPicker) {
+                    this.autoSelectPreviousRange = false;
+                    this.currentRangeSelection = 0;
+                    this.container.find('.ranges li:last').addClass('active');
+                    this.container.find('#previous-range-label').removeClass('active');
+                }
+
                 this.showCalendars();
+            } else if (label == this.locale.previousRangeLabel) {
+                
+                this.startDateCompare = this.claculatePreviousRange('start')
+                this.endDateCompare = this.claculatePreviousRange('end')
+
+                this.currentRangeSelection = 0;
+                // this.clickApply();
+
+                this.autoSelectPreviousRange = true;
+
+                this.showCalendars();
+
             } else {
                 var dates = this.ranges[label];
                 this.startDate = dates[0];
@@ -1560,8 +1612,14 @@
                     this.setEndDate(date.clone());             
                     
                     if (this.comparisonPicker) {
-                        this.nextPicker();
-                    }
+                        if (this.autoSelectPreviousRange) {
+                            this.setComparisonEndDate(this.claculatePreviousRange('end'))
+                            this.setComparisonStartDate(this.claculatePreviousRange('start'))
+    
+                        } else {
+                            this.nextPicker();
+                        } 
+                    } 
     
                     if (this.autoApply) {
                       this.calculateChosenLabel();
@@ -1616,14 +1674,25 @@
                 }
                 i++;
             }
-            if (customRange) {
-                if (this.showCustomRangeLabel) {
-                    this.chosenLabel = this.container.find('.ranges li:last').addClass('active').html();
-                } else {
-                    this.chosenLabel = null;
+
+            if (this.startCompare !== null && this.endDateCompare !== null) {
+                if (this.autoSelectPreviousRange === true && this.endDateCompare.isSame(this.claculatePreviousRange('end')) && this.startDateCompare.isSame(this.claculatePreviousRange('start'))) {
+                    if (this.showPreviousRangeLabel) {
+                        this.chosenLabel = this.container.find('#previous-range-label').addClass('active').html();
+                    } else {
+                        this.chosenLabel = null;
+                    }
+                    this.showCalendars();
+                } else if (customRange) {
+                    if (this.showCustomRangeLabel) {
+                        this.chosenLabel = this.container.find('.ranges li:last').addClass('active').html();
+                    } else {
+                        this.chosenLabel = null;
+                    }
+                    this.showCalendars();
                 }
-                this.showCalendars();
-            }
+            } 
+            
         },
 
         clickApply: function(e) {
@@ -1756,8 +1825,8 @@
                 if (isRight && endCompare.isBefore(startCompare))
                     startCompare = endCompare.clone();
 
-                this.setStartDate(startCompare);
-                this.setEndDate(endCompare);
+                this.setComparisonStartDate(startCompare);
+                this.setComparisonEndDate(endCompare);
 
                 if (isRight) {
                     this.container.find('input[name="daterangepicker_start_compare"]').val(this.startDateCompare.format(this.locale.format));
@@ -1784,9 +1853,20 @@
             // using the calendar.
             var isRight = $(e.target).closest('.calendar').hasClass('right');
             if (isRight) {
-                this.endDate = null;
-                this.setStartDate(this.startDate.clone());
+
+                if(e.target.name === 'daterangepicker_end_compare') {
+                    this.endDateCompare = null;
+                    this.setComparisonStartDate(this.startDateCompare.clone());
+                    this.currentRangeSelection = 1;
+                } else {
+                    this.endDate = null;
+                    this.setStartDate(this.startDate.clone());
+                }
                 this.updateView();
+            } else {
+                if(e.target.name === 'daterangepicker_start_compare') {
+                    this.currentRangeSelection = 1;
+                }
             }
 
         },
