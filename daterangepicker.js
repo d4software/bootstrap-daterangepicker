@@ -698,26 +698,26 @@
             if (this.endDate) {
                 this.container.find('input[name="daterangepicker_end"]').removeClass('active');
                 this.container.find('input[name="daterangepicker_start"]').addClass('active');
-                this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
-                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
+                this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active-compare');
+                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active-compare');
             } else {
                 this.container.find('input[name="daterangepicker_end"]').addClass('active');
                 this.container.find('input[name="daterangepicker_start"]').removeClass('active');
-                this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
-                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
+                this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active-compare');
+                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active-compare');
             }
 
             if (this.currentRangeSelection == 1) {
                 if (this.endDateCompare) {
                     this.container.find('input[name="daterangepicker_end"]').removeClass('active');
                     this.container.find('input[name="daterangepicker_start"]').removeClass('active');
-                    this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
-                    this.container.find('input[name="daterangepicker_start_compare"]').addClass('active');
+                    this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active-compare');
+                    this.container.find('input[name="daterangepicker_start_compare"]').addClass('active-compare');
                 } else if (!this.endDateCompare) {
                     this.container.find('input[name="daterangepicker_end"]').removeClass('active');
                     this.container.find('input[name="daterangepicker_start"]').removeClass('active');
-                    this.container.find('input[name="daterangepicker_end_compare"]').addClass('active');
-                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_end_compare"]').addClass('active-compare');
+                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active-compare');
                 }
             }
             
@@ -1424,7 +1424,7 @@
                     this.container.find('#custom-range-label').hide();
                     this.container.find('#previous-range-label').show();
                 }
-
+                this.updateView()
                 this.showCalendars();
             } else if (label == this.locale.previousRangeLabel) {
                 
@@ -1438,7 +1438,7 @@
                 // this.clickApply();
 
                 this.autoSelectPreviousRange = true;
-
+                this.updateView();
                 this.showCalendars();
 
             } else {
