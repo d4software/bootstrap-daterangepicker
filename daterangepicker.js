@@ -698,17 +698,29 @@
             if (this.endDate) {
                 this.container.find('input[name="daterangepicker_end"]').removeClass('active');
                 this.container.find('input[name="daterangepicker_start"]').addClass('active');
+                this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
             } else {
                 this.container.find('input[name="daterangepicker_end"]').addClass('active');
                 this.container.find('input[name="daterangepicker_start"]').removeClass('active');
+                this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
             }
-            // if (this.endDateCompare && !this.endDate) {
-            //     this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
-            //     this.container.find('input[name="daterangepicker_start_compare"]').addClass('active');
-            // } else {
-            //     this.container.find('input[name="daterangepicker_end_compare"]').addClass('active');
-            //     this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
-            // }
+
+            if (this.currentRangeSelection == 1) {
+                if (this.endDateCompare) {
+                    this.container.find('input[name="daterangepicker_end"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_start"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_end_compare"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_start_compare"]').addClass('active');
+                } else if (!this.endDateCompare) {
+                    this.container.find('input[name="daterangepicker_end"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_start"]').removeClass('active');
+                    this.container.find('input[name="daterangepicker_end_compare"]').addClass('active');
+                    this.container.find('input[name="daterangepicker_start_compare"]').removeClass('active');
+                }
+            }
+            
             this.updateMonthsInView();
             this.updateCalendars();
             this.updateFormInputs();
