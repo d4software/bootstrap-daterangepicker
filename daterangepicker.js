@@ -35,8 +35,8 @@
         this.element = $(element);
         this.startDate = moment().startOf('day');
         this.endDate = moment().endOf('day');
-        this.startDateCompare = this.claculatePreviousRange('start');
-        this.endDateCompare = this.claculatePreviousRange('end');
+        this.startDateCompare = this.calculatePreviousRange('start');
+        this.endDateCompare = this.calculatePreviousRange('end');
         this.minDate = false;
         this.maxDate = false;
         this.dateLimit = false;
@@ -1393,8 +1393,8 @@
             if (label == this.locale.customRangeLabel) {
                 this.updateView();
             } else if (label == this.locale.previousRangeLabel) {
-                this.container.find('input[name=daterangepicker_start_compare]').val(this.claculatePreviousRange('start').format(this.locale.format));
-                this.container.find('input[name=daterangepicker_end_compare]').val(this.claculatePreviousRange('end').format(this.locale.format));
+                this.container.find('input[name=daterangepicker_start_compare]').val(this.calculatePreviousRange('start').format(this.locale.format));
+                this.container.find('input[name=daterangepicker_end_compare]').val(this.calculatePreviousRange('end').format(this.locale.format));
             } else {
                 var dates = this.ranges[label];
                 this.container.find('input[name=daterangepicker_start]').val(dates[0].format(this.locale.format));
@@ -1403,7 +1403,7 @@
 
         },
 
-        claculatePreviousRange: function(section) {
+        calculatePreviousRange: function(section) {
             var diff = this.endDate.diff(this.startDate, 'day') + 1
 
             if (section === 'start') {
@@ -1428,8 +1428,8 @@
                 this.showCalendars();
             } else if (label == this.locale.previousRangeLabel) {
                 
-                this.startDateCompare = this.claculatePreviousRange('start')
-                this.endDateCompare = this.claculatePreviousRange('end')
+                this.startDateCompare = this.calculatePreviousRange('start')
+                this.endDateCompare = this.calculatePreviousRange('end')
 
                 this.container.find('#custom-range-label').show();
                 this.container.find('#previous-range-label').hide();
@@ -1655,8 +1655,8 @@
                     
                     if (this.comparisonPicker) {
                         if (this.autoSelectPreviousRange) {
-                            this.setComparisonEndDate(this.claculatePreviousRange('end'))
-                            this.setComparisonStartDate(this.claculatePreviousRange('start'))
+                            this.setComparisonEndDate(this.calculatePreviousRange('end'))
+                            this.setComparisonStartDate(this.calculatePreviousRange('start'))
     
                         } else {
                             this.nextPicker();
@@ -1723,7 +1723,7 @@
             }
 
             if (this.startCompare !== null && this.endDateCompare !== null) {
-                if (this.autoSelectPreviousRange === true && this.endDateCompare.isSame(this.claculatePreviousRange('end')) && this.startDateCompare.isSame(this.claculatePreviousRange('start'))) {
+                if (this.autoSelectPreviousRange === true && this.endDateCompare.isSame(this.calculatePreviousRange('end')) && this.startDateCompare.isSame(this.calculatePreviousRange('start'))) {
                     if (this.showPreviousRangeLabel) {
                         this.chosenLabel = this.container.find('#previous-range-label').addClass('active').html();
                     } else {
