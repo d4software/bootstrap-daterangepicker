@@ -44,6 +44,7 @@
         this.singleDatePicker = false;
         this.comparisonPicker = false;
         this.autoSelectPreviousRange = true;
+        this.disableLabelHighlighting = true;
         this.currentRangeSelection = 0;
         this.showDropdowns = false;
         this.showWeekNumbers = false;
@@ -415,6 +416,25 @@
 
             list += '</ul>';
             this.container.find('.ranges').prepend(list);
+        }
+
+        if (this.showPreviousRangeLabel && typeof options.ranges !== 'object') {
+            var list = '<ul>';
+            if (this.showPreviousRangeLabel) {
+                list += '<li id="previous-range-label" data-range-key="' + this.locale.previousRangeLabel + '">' + this.locale.previousRangeLabel + '</li>';
+            } 
+            if (this.showCustomRangeLabel){
+                list += '<li id="custom-range-label" data-range-key="' + this.locale.customRangeLabel + '">' + this.locale.customRangeLabel + '</li>';
+            }
+
+            list += '</ul>';
+            this.container.find('.ranges').prepend(list);
+
+            if (this.autoSelectPreviousRange) {
+                this.container.find('#previous-range-label').hide();
+            } else {
+                this.container.find('#custom-range-label').hide();
+            }
         }
 
         if (typeof cb === 'function') {
@@ -1388,9 +1408,9 @@
 
                 if (this.comparisonPicker) {
                     this.autoSelectPreviousRange = false;
-                    this.currentRangeSelection = 0;
-                    this.container.find('.ranges li:last').addClass('active');
-                    this.container.find('#previous-range-label').removeClass('active');
+                    this.currentRangeSelection = 1;
+                    this.container.find('#custom-range-label').hide();
+                    this.container.find('#previous-range-label').show();
                 }
 
                 this.showCalendars();
@@ -1398,6 +1418,9 @@
                 
                 this.startDateCompare = this.claculatePreviousRange('start')
                 this.endDateCompare = this.claculatePreviousRange('end')
+
+                this.container.find('#custom-range-label').show();
+                this.container.find('#previous-range-label').hide();
 
                 this.currentRangeSelection = 0;
                 // this.clickApply();
@@ -1660,6 +1683,11 @@
         },
 
         calculateChosenLabel: function () {
+
+            if (this.disableLabelHighlighting) {
+                return
+            }
+
             var customRange = true;
             var i = 0;
             for (var range in this.ranges) {
