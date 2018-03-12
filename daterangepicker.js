@@ -1655,9 +1655,8 @@
                     
                     if (this.comparisonPicker) {
                         if (this.autoSelectPreviousRange) {
-                            this.setComparisonEndDate(this.calculatePreviousRange('end'))
                             this.setComparisonStartDate(this.calculatePreviousRange('start'))
-    
+                            this.setComparisonEndDate(this.calculatePreviousRange('end'))
                         } else {
                             this.nextPicker();
                         } 
