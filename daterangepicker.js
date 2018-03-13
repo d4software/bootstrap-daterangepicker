@@ -37,6 +37,7 @@
         this.endDate = moment().endOf('day');
         this.startDateCompare = this.calculatePreviousRange('start');
         this.endDateCompare = this.calculatePreviousRange('end');
+        this.endDateTemp = this.endDateCompare;
         this.minDate = false;
         this.maxDate = false;
         this.dateLimit = false;
@@ -1890,8 +1891,14 @@
 
             // Highlight the focused input
             this.container.find('input[name="daterangepicker_start"], input[name="daterangepicker_end"]').removeClass('active');
-            this.container.find('input[name="daterangepicker_start_compare"], input[name="daterangepicker_end_compare"]').removeClass('active');
-            $(e.target).addClass('active');
+            this.container.find('input[name="daterangepicker_start_compare"], input[name="daterangepicker_end_compare"]').removeClass('active-compare');
+
+            if (e.target.name === 'daterangepicker_end_compare' || e.target.name === 'daterangepicker_start_compare') {
+                $(e.target).addClass('active-compare');
+            } else {
+                $(e.target).addClass('active');
+            }
+            
 
             // Set the state such that if the user goes back to using a mouse, 
             // the calendars are aware we're selecting the end of the range, not
@@ -1902,6 +1909,7 @@
             if (isRight) {
 
                 if(e.target.name === 'daterangepicker_end_compare') {
+                    this.endDateCompareCache = this.endDateCompare.clone();
                     this.endDateCompare = null;
                     this.setComparisonStartDate(this.startDateCompare.clone());
                     this.currentRangeSelection = 1;
@@ -1909,12 +1917,20 @@
                     this.endDate = null;
                     this.setStartDate(this.startDate.clone());
                 }
-                this.updateView();
             } else {
-                if(e.target.name === 'daterangepicker_start_compare') {
-                    this.currentRangeSelection = 1;
+                if (this.comparisonPicker) {
+                    if(e.target.name === 'daterangepicker_start_compare') {
+                        this.currentRangeSelection = 1;
+                    }
+
+                    if(e.target.name === 'daterangepicker_start') {
+                        this.setComparisonStartDate(this.startDateCompare.clone());
+                        this.setComparisonEndDate(this.endDateCompareCache.clone());
+                        this.currentRangeSelection = 0;
+                    }
                 }
             }
+            this.updateView();
 
         },
 
