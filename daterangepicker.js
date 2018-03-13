@@ -1946,6 +1946,26 @@
                 e.preventDefault(); 
                 this.formInputsChanged(e);
             }
+
+
+            if (this.comparisonPicker) {
+                if (e.keyCode === 9) {
+                    e.preventDefault();
+                    if (e.target.name === 'daterangepicker_start') {
+                        this.container.find('input[name="daterangepicker_end"]').focus();
+                    }
+                    if (e.target.name === 'daterangepicker_end') {
+                        this.container.find('input[name="daterangepicker_start_compare"]').focus();
+                    }
+                    if (e.target.name === 'daterangepicker_start_compare') {
+                        this.container.find('input[name="daterangepicker_end_compare"]').focus();
+                    }
+                    if (e.target.name === 'daterangepicker_end_compare') {
+                        this.container.find('input[name="daterangepicker_start"]').focus();
+                    }
+                }
+            }
+            
         },
 
 
