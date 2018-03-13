@@ -1657,9 +1657,8 @@
                         if (this.autoSelectPreviousRange) {
                             this.setComparisonStartDate(this.calculatePreviousRange('start'))
                             this.setComparisonEndDate(this.calculatePreviousRange('end'))
-                        } else {
                             this.nextPicker();
-                        } 
+                        }
                     } 
     
                     if (this.autoApply) {
