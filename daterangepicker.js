@@ -1335,6 +1335,10 @@
                 this.endDateCompare = this.oldEndDateCompare.clone();
             }
 
+            if (this.comparisonPicker) {
+                this.currentRangeSelection = 0;
+            }
+
             //if a new date range was selected, invoke the user callback function
             if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate) || !this.endDateCompare.isSame(this.oldEndDateCompare) || !this.startDateCompare.isSame(this.oldStartDateCompare))
                 this.callback(this.startDate, this.endDate, this.startDateCompare, this.endDateCompare, this.chosenLabel);
